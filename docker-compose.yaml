@@ -1,0 +1,27 @@
+# nginx proxy address - http://172.17.0.1:8123
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  home-assistant:
+    image: homeassistant/home-assistant:latest
+    container_name: home-assistant-app
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - home-assistant
+    ports:
+      - "8123:8123"
+    environment:
+      TZ: ${TZ:-America/New_York}
+    volumes:
+      - ./rootfs/config/home-assistant:/config
+      - ./rootfs/data/home-assistant:/data
+
+networks:
+  home-assistant:
+    external: false
