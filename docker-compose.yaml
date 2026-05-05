@@ -19,8 +19,8 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
     volumes:
-      - ./rootfs/config/home-assistant:/config
-      - ./rootfs/data/home-assistant:/data
+      - ./volumes/config/home-assistant:/config
+      - ./volumes/data/home-assistant:/data
 
 networks:
   home-assistant:
