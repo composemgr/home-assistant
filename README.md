@@ -45,8 +45,8 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/config/home-assistant` - Data storage
-- `./rootfs/data/home-assistant` - Data storage
+- `./volumes/config/home-assistant` - Data storage
+- `./volumes/data/home-assistant` - Data storage
 
 ## 🔍 Logging
 
