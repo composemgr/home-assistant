@@ -18,6 +18,7 @@ services:
     privileged: true
     environment:
       TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: home-assistant-app
     volumes:
       - ./volumes/config/home-assistant:/config
       - /run/dbus:/run/dbus:ro
