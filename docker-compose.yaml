@@ -1,27 +1,35 @@
-# nginx proxy address - http://172.17.0.1:8123
+# nginx proxy address - http://172.17.0.1:64199
 
 name: home-assistant
 x-logging: &default-logging
-  driver: json-file
   options:
-    max-size: "5m"
-    max-file: "1"
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
 
 services:
   app:
-    image: ghcr.io/home-assistant/home-assistant:stable
-    pull_policy: always
+    image: ghcr.io/home-assistant/home-assistant:latest
     container_name: home-assistant-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: always
+    pull_policy: always
     logging: *default-logging
-    network_mode: host
     privileged: true
     environment:
       TZ: ${TZ:-America/New_York}
       CONTAINER_NAME: home-assistant-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    ports:
+      - '172.17.0.1:64199:8123'
     volumes:
-      - ./volumes/config/home-assistant:/config
-      - /run/dbus:/run/dbus:ro
+      - './volumes/config/home-assistant:/config:z'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/run/dbus:/run/dbus:ro'
+      - '/dev/bus/usb:/dev/bus/usb'
+    networks:
+      - home-assistant
 
 networks:
   home-assistant:

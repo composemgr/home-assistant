@@ -1,0 +1,40 @@
+name: home-assistant
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: ghcr.io/home-assistant/home-assistant:latest
+    container_name: home-assistant-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    privileged: true
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: home-assistant-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    volumes:
+      - './volumes/config/home-assistant:/config:z'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/run/dbus:/run/dbus:ro'
+      - '/dev/bus/usb:/dev/bus/usb'
+    labels:
+      - 'cloudflare.enable=true'
+      - 'cloudflare.service=http://home-assistant-app:8123'
+      - 'cloudflare.hostname=${BASE_HOST_NAME:-$HOSTNAME}'
+    networks:
+      - home-assistant
+      - cloudflare
+
+networks:
+  home-assistant:
+    name: home-assistant
+    external: false
+  cloudflare:
+    external: true

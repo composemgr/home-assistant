@@ -1,0 +1,48 @@
+name: home-assistant
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: ghcr.io/home-assistant/home-assistant:latest
+    container_name: home-assistant-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    privileged: true
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: home-assistant-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    volumes:
+      - './volumes/config/home-assistant:/config:z'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/run/dbus:/run/dbus:ro'
+      - '/dev/bus/usb:/dev/bus/usb'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik'
+      - 'traefik.http.routers.home-assistant-app.entrypoints=http'
+      - 'traefik.http.routers.home-assistant-app.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.middlewares.home-assistant-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.home-assistant-app.middlewares=home-assistant-app-https-redirect'
+      - 'traefik.http.routers.home-assistant-app-secure.entrypoints=https'
+      - 'traefik.http.routers.home-assistant-app-secure.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.routers.home-assistant-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.home-assistant-app-secure.service=home-assistant-app'
+      - 'traefik.http.services.home-assistant-app.loadbalancer.server.port=8123'
+    networks:
+      - home-assistant
+      - traefik
+
+networks:
+  home-assistant:
+    name: home-assistant
+    external: false
+  traefik:
+    external: true
